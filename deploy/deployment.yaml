@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: container-0
-          image: docker.io/davidliyutong/ldap-proxy:0.1-amd64 # docker.io/davidliyutong/ldap-proxy:0.1-arm64 for Arm based deployment
+          image: docker.io/davidliyutong/ldap-proxy:0.2-amd64 # docker.io/davidliyutong/ldap-proxy:0.2-arm64 for Arm based deployment
           imagePullPolicy: IfNotPresent
           ports:
           - name: 8080tcp
