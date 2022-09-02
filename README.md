@@ -97,3 +97,7 @@ Only `src/app.py` is need for LDAP Auth Proxy to work. It depends on `flask`, `l
 This is a toy project under rapid developement. Do not use it for production.
 
 When using basic auth username and password will be transfered in plain text if TLS is not enabled for target ingress resource.
+
+## Acknowledgement
+
+This project is inspired by [this blog](https://zhuanlan.zhihu.com/p/377931297)

@@ -27,7 +27,7 @@ def status_code(code):
     return Response(status=code)
 
 
-# 这里我是通过docker部署服务，这些配置在环境变量传入，你可以根据需要选择直接填写对应值
+# Pass environment variables
 ldap_host = os.getenv("LDAP_HOST")
 port = os.getenv("LDAP_PORT")
 base_dn = os.getenv("LDAP_BASE_DN")
@@ -43,19 +43,28 @@ auth = HTTPBasicAuth()
 
 class LdapUtils(object):
     def __init__(self, ldap_host=None, port=None, base_dn=None, user=None, password=None):
+        self.ldap_host = ldap_host
+        self.port = port
         self.base_dn = base_dn
+        self.user = user
+        self.password = password
+
+        self.initiate_connection()
+
+    def initiate_connection(self):
+        print('LdapUtils.ldap_search_dn connect:' + 'ldap_host:' + str(self.ldap_host) + ' port:' + str(self.port) + ' base_dn:' + str(self.base_dn) + ' user:' + str(self.user))
         try:
-            server = Server(ldap_host, port, get_info=ALL)
+            server = Server(self.ldap_host, self.port, get_info=ALL)
             self.ldapconn = Connection(server, user=None, password=None,
                                        auto_bind='NONE', version=3, authentication='SIMPLE',
                                        client_strategy='SYNC',
                                        auto_referrals=True, check_names=True, read_only=False, lazy=False,
                                        raise_exceptions=False)
-            self.ldapconn.rebind(user=user, password=password)
+            self.ldapconn.rebind(user=self.user, password=self.password)
         except Exception as e:
-            print(e)
+            print('LdapUtils.initiate_connection exception:' + str(e))
 
-    def ldap_search_dn(self, uid=None):
+    def ldap_search_dn(self, uid=None, is_retry=False):
         obj = self.ldapconn
         search_base = self.base_dn
         search_scope = SUBTREE
@@ -68,7 +77,12 @@ class LdapUtils(object):
             else:
                 return None
         except Exception as e:
-            print(e)
+            print('LdapUtils.ldap_search_dn exception:' + str(e))
+            if not is_retry:
+                self.initiate_connection()
+                return self.ldap_search_dn(uid, True)
+            else:
+                return None
 
     def ldap_get_vaild(self, uid=None, passwd=None):
         if not uid or not passwd:
@@ -81,13 +95,12 @@ class LdapUtils(object):
             return False
 
         try:
-            # print(dn)
             if obj.rebind(dn, passwd):
                 return True
             else:
                 return False
         except Exception as e:
-            print('e:' + str(e))
+            print('LdapUtils.ldap_get_vaild exception:' + str(e))
 
 
 ldap = LdapUtils(ldap_host, int(port), base_dn, user, password)
