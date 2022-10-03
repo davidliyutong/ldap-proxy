@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: container-0
-          image: docker.io/davidliyutong/ldap-proxy:0.2-amd64 # docker.io/davidliyutong/ldap-proxy:0.2-arm64 for Arm based deployment
+          image: docker.io/davidliyutong/ldap-proxy:0.3-amd64 # docker.io/davidliyutong/ldap-proxy:0.3-arm64 for Arm based deployment
           imagePullPolicy: IfNotPresent
           ports:
           - name: 8080tcp
@@ -37,6 +37,8 @@ spec:
             value: "uid={},ou=users,dc=example,dc=com" # '{}' will be replaced by username
           - name: LDAP_SEARCH_DN
             value: "(uid={})" # '{}' will be replaced by username
+          - name: DEBUG
+            value: "1"
           resources: 
             requests:
               memory: "64Mi"
